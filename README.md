@@ -1,43 +1,45 @@
 # Adaptive Understanding
 
-> An adaptive understanding skill that routes complex information into the **minimum sufficient representation**: **Text → Table → Diagram Type → Interactive → Animation/Video**.
+> **自适应理解引擎**：先判断“为什么没看懂”，再选择最合适的表达形式，而不是默认生成更多内容。
 >
-> 自适应理解引擎：先判断“为什么没看懂”，再选择最合适的表达形式，而不是默认生成更多内容。
+> 核心路径：**Text → Table → Diagram Type → Interactive → Animation/Video**
 
-## Why this skill exists
+[English README](README_EN.md)
 
-AI can generate more text, diagrams, webpages, and videos than a person can reasonably consume. The harder problem is therefore not only **generation**, but **understanding**: how to present the same source material in a form that lowers cognitive load without changing the facts.
+## 为什么需要这个 Skill？
 
-Adaptive Understanding treats explanation as a routing problem:
+AI 已经可以快速生成大量文字、图表、网页、动画和视频。真正越来越稀缺的，不只是“生成能力”，而是：
+
+> **如何让人更快、更准确地理解 AI 生成的内容。**
+
+Adaptive Understanding 把“解释”看成一个**表达形式路由问题**：
 
 ```text
-Source material
-      ↓
-Preserve facts, scope, uncertainty, and relationships
-      ↓
-Diagnose the comprehension bottleneck
-      ↓
-Choose the minimum sufficient representation
-      ↓
+来源材料
+   ↓
+保留事实、范围、不确定性与关系
+   ↓
+诊断理解卡点
+   ↓
+选择最小充分表达
+   ↓
 Text → Table → Diagram Type → Interactive → Animation/Video
-      ↓
-Verify semantic fidelity
-      ↓
-If the reader is still confused, change the explanation path
+   ↓
+验证是否改变原意
+   ↓
+如果仍没懂，就改变解释路径
 ```
 
-The sequence above is an **expression capability ladder**, not a mandatory pipeline. The skill may skip levels, stay at one level, or downgrade to a simpler representation when that is clearer.
+这条路径不是固定流水线。Skill 可以跳过某些层级、停留在当前层级，或者在复杂表达反而增加负担时，主动降级到更简单的形式。
 
-## Core idea
+## 核心原则
 
-The skill follows four principles:
+1. **Source Fidelity（来源忠实）**：保留数字、单位、归因、否定、范围、前提、不确定性，以及“相关 ≠ 因果”的区别。
+2. **Minimum Sufficient Representation（最小充分表达）**：用能解决当前理解问题的最简单形式，不默认一次生成全部格式。
+3. **Representation Fit（表达形式匹配）**：根据“信息结构”选择表达形式，而不是为了视觉效果而增加图表或动画。
+4. **Progressive Escalation（渐进升级）**：用户仍没懂时，改变解释路径，而不是单纯继续加字。
 
-1. **Source Fidelity** — preserve numbers, units, attribution, negation, scope, prerequisites, uncertainty, and the difference between correlation and causation.
-2. **Minimum Sufficient Representation** — use the simplest form that solves the current comprehension problem; do not generate every format by default.
-3. **Representation Fit** — choose the medium based on the information structure, not on visual novelty.
-4. **Progressive Escalation** — if the reader still does not understand, change the explanation path instead of merely adding more words.
-
-A useful mental model is:
+可以把它理解成：
 
 ```text
 Understanding
@@ -46,93 +48,82 @@ Understanding
 × Explanation Quality
 ```
 
-If any factor is close to zero, the explanation fails even if the output looks polished.
+只要其中一项接近 0，即使输出看起来很漂亮，解释仍然可能失败。
 
-## Representation decision tree
+## 表达形式决策树
 
-| Comprehension need | Default representation |
+| 理解需求 | 默认表达形式 |
 | --- | --- |
-| A concept, claim, mechanism, evidence boundary | **Text** |
-| A/B/C comparison using shared dimensions | **Table** |
-| Components and modules | **Architecture / Block diagram** |
-| Sequence, branching, retry, AND/OR conditions | **Flowchart** |
-| Cross-role handoffs and responsibility | **Swimlane** |
-| Classification and hierarchy | **Tree / Hierarchy** |
-| Supported causal chains and feedback loops | **Causal diagram** |
-| Data movement through a system | **Data-flow diagram** |
-| Events or version evolution over time | **Timeline** |
-| Many-to-many relationships | **Network graph** |
-| Trends, distributions, or numeric relationships | **Chart** |
-| Changing parameters or scenarios | **Interactive** |
-| Time evolution, state transitions, step-by-step execution | **Animation / Video** |
+| 单个概念、论点、机制、证据边界 | **Text** |
+| A / B / C 使用共同维度比较 | **Table** |
+| 组成、模块、上下游 | **Architecture / Block Diagram** |
+| 顺序、条件、失败返回、重试、AND/OR | **Flowchart** |
+| 多角色协作、责任边界、交接 | **Swimlane** |
+| 分类、从属、层级关系 | **Tree / Hierarchy** |
+| 有证据支持的因果链、反馈回路 | **Causal Diagram** |
+| 数据从哪里来、经过哪里、到哪里去 | **Data-flow Diagram** |
+| 时间顺序、版本演进 | **Timeline** |
+| 多对多关系 | **Network Graph** |
+| 趋势、分布、数值关系 | **Chart** |
+| 改参数、改条件、观察结果变化 | **Interactive** |
+| 时间演化、状态转换、逐步执行 | **Animation / Video** |
 
-For the full routing rules, see [`references/representation-decision-tree.md`](references/representation-decision-tree.md).
+完整路由规则请参阅：[`references/representation-decision-tree.md`](references/representation-decision-tree.md)
 
-## What makes it different from a normal “explain this” prompt
+## 和普通“帮我解释一下”有什么不同？
 
-Adaptive Understanding does not assume that simpler wording is always the answer. A reader may be blocked by different problems:
+普通 Prompt 往往默认“没看懂 → 再解释得简单一点”。Adaptive Understanding 会先判断**没懂的原因**：
 
-- an unfamiliar term → explain with Text;
-- too many alternatives mixed in paragraphs → use a Table;
-- invisible sequence or branching logic → use a Flowchart;
-- unclear ownership across human and AI agents → use a Swimlane;
-- a parameter-dependent relationship → build an Interactive explanation;
-- a process that only makes sense over time → use Animation/Video.
+- 不认识一个术语 → **Text**
+- 多个方案混在长段落里 → **Table**
+- 看不懂步骤和条件分支 → **Flowchart**
+- 不知道人和 Agent 各自负责什么 → **Swimlane**
+- 想知道参数改变后结果怎样变化 → **Interactive**
+- 静态图看懂了，但脑中仍没有过程感 → **Animation / Video**
 
-It also stops escalating when the source itself does not contain the answer. A more sophisticated visualization must not hide missing evidence.
+如果真正的问题是“来源材料本身没有答案”，Skill 不会继续用更漂亮的图或动画掩盖证据缺口，而会明确指出：**材料没有告诉我们。**
 
-## Epistemic safety
+## Epistemic Safety：清楚不等于正确
 
-This skill separates **clarity** from **truth**.
+一张漂亮的图、一个 Slider、一段动画或视频，可能让未经支持的内容显得更可信。因此本 Skill 特别强调：
 
-A polished diagram, slider, animation, or video can make unsupported claims feel more credible. Therefore:
+- 重要关系应能追溯到来源；
+- 未知信息继续保持未知；
+- 不把缺失信息静默变成假设；
+- 因果箭头必须有因果依据；
+- 交互公式必须来自来源、规则、代码路径，或明确标记为“教学假设”；
+- 动画中的移动、变色、连线和状态变化必须表达真实语义，而不是装饰效果。
 
-- every important relationship should be traceable to the source;
-- unknown information stays unknown;
-- missing information is not converted into a neat assumption silently;
-- causal arrows require causal support;
-- interactive formulas require a source, rule, code path, or an explicit “teaching assumption” label;
-- animation must represent real state changes, not decorative motion.
+## ASD-STE100 的启发
 
-## Simplified Technical English inspiration
+本 Skill 借鉴了 **ASD-STE100 Simplified Technical English** 的部分表达原则，例如术语稳定、减少句法歧义、操作步骤更直接，以及“简化语言但不删掉关键条件”。
 
-The skill borrows selected clarity principles from **ASD-STE100 Simplified Technical English**, especially stable terminology, reduced syntactic ambiguity, and concise procedural writing. It does **not** claim formal ASD-STE100 compliance or certification.
+但本项目**不声称正式符合 ASD-STE100，也不提供 STE 合规认证**。中文不会机械把英文 20 / 25 words 的限制换成中文字数限制。
 
-Chinese explanations adapt the intent of STE instead of mechanically translating English word-count limits into Chinese character-count limits.
+中文适配说明：[`references/ste-and-chinese.md`](references/ste-and-chinese.md)
 
-See [`references/ste-and-chinese.md`](references/ste-and-chinese.md) and [`references/sources.md`](references/sources.md).
+来源说明：[`references/sources.md`](references/sources.md)
 
-## Examples
+## 示例
 
-The repository includes examples that demonstrate the routing approach:
+- [`examples/flow.svg`](examples/flow.svg)：并发检查、AND 条件、失败分支、补材料回路与人工核对。
+- [`examples/parallel-demo.html`](examples/parallel-demo.html)：用明确公式与教学假设演示参数变化。
+- [`examples/process-animation.html`](examples/process-animation.html)：可播放、暂停、上一步、下一步、重新开始的流程动画。
+- [`examples/animation-storyboard.md`](examples/animation-storyboard.md)：宿主不能直接生成视频时的 storyboard / narration 降级方案。
+- [`examples/walkthrough.md`](examples/walkthrough.md)：同一份材料如何分别使用 Text、Table、Diagram、Interactive、Animation。
 
-- [`examples/flow.svg`](examples/flow.svg) — preserves parallel checks, AND conditions, failure branches, loops, and human review.
-- [`examples/parallel-demo.html`](examples/parallel-demo.html) — interactive teaching model for parallel processing using an explicit formula and assumptions.
-- [`examples/process-animation.html`](examples/process-animation.html) — playable step-by-step process animation with play, pause, previous, next, and restart controls.
-- [`examples/animation-storyboard.md`](examples/animation-storyboard.md) — storyboard fallback for environments that cannot render video directly.
-- [`examples/walkthrough.md`](examples/walkthrough.md) — walkthrough of multiple output forms.
+## Acceptance Tests
 
-## Acceptance tests
+本项目加入验收案例，覆盖证据范围、过度外推、Table / Diagram 路由、Diagram Type 选择、并发 vs 顺序、AND vs OR、未经支持的因果关系、编造公式、Animation 语义、过度生成，以及复杂视觉的降级行为。
 
-The skill includes acceptance cases covering:
+完整案例：[`references/acceptance-cases.md`](references/acceptance-cases.md)
 
-- evidence scope and overgeneralization;
-- table-vs-diagram routing;
-- diagram type selection;
-- parallel vs sequential semantics;
-- unsupported causality;
-- invented formulas;
-- animation semantics;
-- over-generation;
-- downgrade behavior when a complex visual makes understanding worse.
-
-See [`references/acceptance-cases.md`](references/acceptance-cases.md).
-
-## Repository structure
+## 仓库结构
 
 ```text
 adaptive-understanding/
 ├── README.md
+├── README_EN.md
 ├── LICENSE
 ├── SKILL.md
 ├── examples/
@@ -149,27 +140,38 @@ adaptive-understanding/
     └── ste-and-chinese.md
 ```
 
-## Inspiration and references
+## 灵感来源与参考资料
 
-The main product inspiration for this skill is Andrej Karpathy's post about using different output modalities to make LLM-generated information easier for humans to understand:
+这个 Skill 的主要产品灵感来自 **Andrej Karpathy** 关于“如何让人更容易理解 LLM 输出”的帖子：
 
-- **Andrej Karpathy — X post:** https://x.com/karpathy/status/2105819303471976479
+- **Andrej Karpathy — X 原帖**  
+  https://x.com/karpathy/status/2105819303471976479
 
-Adaptive Understanding extends that idea into a routing system: **Text → Table → Diagram Type → Interactive → Animation/Video**, with source fidelity, epistemic boundaries, progressive escalation, and acceptance tests added as first-class requirements.
+Karpathy 的帖子提出了使用不同输出形式来降低理解成本的思路，包括文字、图示、网页和视频。
 
-Additional references include:
+**Adaptive Understanding 在此基础上进一步扩展为：**
+
+> **Text → Table → Diagram Type → Interactive → Animation/Video**
+
+并加入 Source Fidelity、Epistemic Safety、Minimum Sufficient Representation、Progressive Escalation、Diagram Type Routing 与 Acceptance Tests。
+
+其他参考：
 
 - ASD-STE100 Simplified Technical English: https://www.asd-ste100.org/
 - ASD-STE100 Issue 9: https://www.asd-ste100.org/assets/files/ASD-STE100_ISSUE9.pdf
 
-For detailed provenance and boundaries, see [`references/sources.md`](references/sources.md).
+详细出处与适用边界：[`references/sources.md`](references/sources.md)
 
 ## License
 
-This project is released under the **MIT License**. See [`LICENSE`](LICENSE) for details.
+本项目采用 **MIT License**。请参阅 [`LICENSE`](LICENSE)。
 
-## Status
+## 当前状态
 
-This repository contains the **Adaptive Understanding V2** skill specification and examples. It is designed to be host-agnostic: different AI environments may provide different capabilities for file reading, diagram rendering, HTML generation, animation, and video generation.
+当前仓库包含 **Adaptive Understanding V2** 的 Skill 规范、表达形式决策树、验收案例与示例，并设计为 **host-agnostic**。
 
-The skill should degrade gracefully when a host lacks a modality rather than pretending an artifact was generated or verified.
+当宿主不具备某种能力时，Skill 应该优雅降级，例如 Video → Storyboard + Narration、Animation → HTML / Step-by-step storyboard、Diagram → Text relationship map，而不是假装已经生成或验证不存在的成果。
+
+## 一句话总结
+
+> **Adaptive Understanding 不是让 AI 生成更多内容，而是让 AI 判断：为了让人真正看懂，当前最应该生成什么。**
